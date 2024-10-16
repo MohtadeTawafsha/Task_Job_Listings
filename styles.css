@@ -119,6 +119,7 @@ header {
     background-color: #66d2cd;
     color: white;
 }
+
 /* Styles for the selected filters section */
 #selected-filters {
     display: flex;
