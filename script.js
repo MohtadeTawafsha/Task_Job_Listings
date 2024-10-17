@@ -70,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function createJobCard(job) {
     const jobCard = document.createElement("div");
     jobCard.classList.add("job-card");
-    jobCard.setAttribute("data-category", job.category);
 
     jobCard.innerHTML = `
           <div class="job-details">
@@ -144,38 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
     activeFilters = [];
     selectedFilters.innerHTML = "";
     updateJobListings();
-  });
-
-  function addFilter(tag) {
-    if (!activeFilters.includes(tag)) {
-      activeFilters.push(tag);
-      const filterElement = document.createElement("span");
-      filterElement.classList.add("selected-tag");
-      filterElement.innerHTML = `${tag} <span class="remove-tag">X</span>`;
-      selectedFilters.appendChild(filterElement);
-
-      filterElement
-        .querySelector(".remove-tag")
-        .addEventListener("click", () => {
-          activeFilters = activeFilters.filter((f) => f !== tag);
-          filterElement.remove();
-          updateJobListings();
-        });
-
-      updateJobListings();
-    }
-  }
-
-  jobListings.forEach((job) => {
-    job.tags.forEach((tag) => {
-      const tagElement = document.createElement("span");
-      tagElement.classList.add("tag");
-      tagElement.textContent = tag;
-
-      tagElement.addEventListener("click", () => {
-        addFilter(tag.toLowerCase());
-      });
-    });
   });
 
   renderJobListings(jobListings);
