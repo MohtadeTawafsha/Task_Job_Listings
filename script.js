@@ -65,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const jobListingsContainer = document.getElementById("job-listings");
   const searchBar = document.getElementById("search-bar");
   const clearBtn = document.getElementById("clear-btn");
-  const selectedFilters = document.getElementById("selected-filters");
   let activeFilters = [];
 
   function createJobCard(job) {
