@@ -1,10 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const searchBar = document.getElementById("search-bar");
-  const clearBtn = document.getElementById("clear-btn");
-  const selectedFilters = document.getElementById("selected-filters");
-  let activeFilters = [];
-
-  // The job listings array
   const jobListings = [
     {
       company: "Photosnap",
@@ -69,79 +63,90 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   const jobListingsContainer = document.getElementById("job-listings");
+  const searchBar = document.getElementById("search-bar");
+  const clearBtn = document.getElementById("clear-btn");
+  const selectedFilters = document.getElementById("selected-filters");
+  let activeFilters = [];
 
-  // Function to create a job card
   function createJobCard(job) {
     const jobCard = document.createElement("div");
     jobCard.classList.add("job-card");
     jobCard.setAttribute("data-category", job.category);
 
     jobCard.innerHTML = `
-      <div class="job-details">
-        <div class="job-logo">
-          <img src="${job.logo}" alt="${job.company} Logo">
-        </div>
-        <div class="job-info">
-          <div class="company">
-            <h3>${job.company}</h3>
-            ${job.new ? `<span class="new">NEW!</span>` : ""}
-            ${job.featured ? `<span class="featured">FEATURED</span>` : ""}
+          <div class="job-details">
+              <div class="job-logo">
+                  <img src="${job.logo}" alt="${job.company} Logo">
+              </div>
+              <div class="job-info">
+                  <div class="company">
+                      <h3>${job.company}</h3>
+                      ${job.new ? `<span class="new">NEW!</span>` : ""}
+                      ${
+                        job.featured
+                          ? `<span class="featured">FEATURED</span>`
+                          : ""
+                      }
+                  </div>
+                  <h2>${job.title}</h2>
+                  <ul class="job-meta">
+                      <li>${job.posted}</li>
+                      <li>${job.type}</li>
+                      <li>${job.location}</li>
+                  </ul>
+              </div>
           </div>
-          <h2>${job.title}</h2>
-          <ul class="job-meta">
-            <li>${job.posted}</li>
-            <li>${job.type}</li>
-            <li>${job.location}</li>
-          </ul>
-        </div>
-      </div>
-      <div class="job-tags">
-        ${job.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}
-      </div>
-    `;
+          <div class="job-tags">
+              ${job.tags
+                .map((tag) => `<span class="tag">${tag}</span>`)
+                .join("")}
+          </div>
+      `;
+    return jobCard;
+  }
 
-    jobListingsContainer.appendChild(jobCard);
-
-    // Add click event to job tags for filtering
-    jobCard.querySelectorAll(".tag").forEach((tagElement) => {
-      tagElement.addEventListener("click", () => {
-        const tag = tagElement.textContent.toLowerCase();
-        addFilter(tag);
-      });
+  function renderJobListings(filteredJobs) {
+    jobListingsContainer.innerHTML = "";
+    filteredJobs.forEach((job) => {
+      const jobCard = createJobCard(job);
+      jobListingsContainer.appendChild(jobCard);
     });
   }
 
-  // Function to update job listings based on search input and selected filters
   function updateJobListings() {
-    const filter = searchBar.value.toLowerCase();
-    const jobCards = document.querySelectorAll(".job-card"); // Move this here so it selects after jobs are created
-    jobCards.forEach((card) => {
-      const jobTitle = card.querySelector("h2").textContent.toLowerCase();
-      const company = card
-        .querySelector(".company h3")
-        .textContent.toLowerCase();
-      const category = card.getAttribute("data-category").toLowerCase();
-      const tags = Array.from(card.querySelectorAll(".tag")).map((tag) =>
-        tag.textContent.toLowerCase()
-      );
+    const searchFilter = searchBar.value.toLowerCase();
 
-      const matchesFilter =
-        jobTitle.includes(filter) ||
-        company.includes(filter) ||
-        category.includes(filter);
+    const filteredJobs = jobListings.filter((job) => {
+      const jobTitle = job.title.toLowerCase();
+      const company = job.company.toLowerCase();
+      const category = job.category.toLowerCase();
+      const tags = job.tags.map((tag) => tag.toLowerCase());
+
+      const matchesSearch =
+        jobTitle.includes(searchFilter) ||
+        company.includes(searchFilter) ||
+        category.includes(searchFilter) ||
+        tags.some((tag) => tag.includes(searchFilter));
+
       const matchesTags = activeFilters.every((filter) =>
         tags.includes(filter)
       );
 
-      if (matchesFilter && matchesTags) {
-        card.style.display = "flex";
-      } else {
-        card.style.display = "none";
-      }
+      return matchesSearch && matchesTags;
     });
+
+    renderJobListings(filteredJobs);
   }
 
-  // Function to add a filter tag to the selected filters section
+  searchBar.addEventListener("input", updateJobListings);
+
+  clearBtn.addEventListener("click", () => {
+    searchBar.value = "";
+    activeFilters = [];
+    selectedFilters.innerHTML = "";
+    updateJobListings();
+  });
+
   function addFilter(tag) {
     if (!activeFilters.includes(tag)) {
       activeFilters.push(tag);
@@ -150,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
       filterElement.innerHTML = `${tag} <span class="remove-tag">X</span>`;
       selectedFilters.appendChild(filterElement);
 
-      // Handle tag removal
       filterElement
         .querySelector(".remove-tag")
         .addEventListener("click", () => {
@@ -163,17 +167,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Dynamically generate job cards for all jobs
-  jobListings.forEach((job) => createJobCard(job));
+  jobListings.forEach((job) => {
+    job.tags.forEach((tag) => {
+      const tagElement = document.createElement("span");
+      tagElement.classList.add("tag");
+      tagElement.textContent = tag;
 
-  // Handle search bar input
-  searchBar.addEventListener("input", updateJobListings);
-
-  // Handle clear button
-  clearBtn.addEventListener("click", () => {
-    searchBar.value = "";
-    activeFilters = [];
-    selectedFilters.innerHTML = "";
-    updateJobListings();
+      tagElement.addEventListener("click", () => {
+        addFilter(tag.toLowerCase());
+      });
+    });
   });
+
+  renderJobListings(jobListings);
 });
