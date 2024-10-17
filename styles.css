@@ -14,7 +14,6 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #66d2cd;
     padding: 55px;
     background-image: url("images/background_header.jpg");
 }
